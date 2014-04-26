@@ -1,4 +1,4 @@
 homemade js game platform
 includes:
-	php mvc framework
+	php mvc framework (modular structure, PDO-base models, native php templater)
 	js game engine
