@@ -11,6 +11,8 @@ mb_internal_encoding('utf-8');
 
 include 'app/core.inc.php';
 
+// *** test development part:
+
 p('Loaded core');
 
 foreach([
@@ -27,6 +29,7 @@ foreach([
     $url = $prefix.$path;
     p("<a href='http://$url' >$url</a>");
 }
+// ***
 
 Core::instance();
 Core::instance()->init();
