@@ -1,6 +1,6 @@
 <?php
 namespace Controllers;
-p('Load Controller');
+//p('Load Controller');
 class Controller {
     
 }

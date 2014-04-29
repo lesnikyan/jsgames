@@ -43,7 +43,7 @@ class Config {
         $node = $this->confData;
         $i = 0;
         $max = count($chain) - 1;
-        p($max . ' ' . print_r($chain,1));
+     //   p($max . ' ' . print_r($chain,1));
         while($i <= $max && isset($node[$chain[$i]])){
             $node = $node[$chain[$i]];
             //p($node);

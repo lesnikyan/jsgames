@@ -68,9 +68,9 @@ class Core {
             return null;
         //$con = new \Controllers\Controller(); p($con); exit;
         require_once $file;
-        p($file);
+    //    p($file);
         $class = '\\Controllers\\' . ucfirst($name) .'Controller';
-        p($class);
+    //    p($class);
         return $class;
     }
     

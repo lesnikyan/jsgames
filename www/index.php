@@ -13,9 +13,9 @@ include 'app/core.inc.php';
 
 // *** test development part:
 
-p('Loaded core');
+0 && p('Loaded core');
 
-foreach([
+if(0) foreach([
     '',
     '/index.php',
     '/index.php/main/test/qqqq/wwww/eeee',
