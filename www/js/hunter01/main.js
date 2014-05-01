@@ -94,10 +94,10 @@ $(window).load(function(){
             canvas = $('canvas#game')[0];
             ctx2d = canvas.getContext("2d");
             $(canvas).attr({'width': width+'px', 'height': height+'px', });
-            units.push( new Unit([100, 150]) );
-            units.push( new Unit([150, 160]) );
-            units.push( new Unit([200, 170]) );
-            units.push( new Unit([250, 180]) );
+            units.push( new Unit({position:[100, 150], speed: 10, color: '#ff0000'}) );
+            units.push( new Unit({position:[150, 160], speed: 20, color: '#ff8800'}) );
+            units.push( new Unit({position:[200, 170], speed: 30, color: '#ff8888'}) );
+            units.push( new Unit({position:[250, 180], speed: 50, color: '#ff0088'}) );
             renderUnits();
         }
         
@@ -155,9 +155,12 @@ $(window).load(function(){
         return (point[0] > x1 && point[0] < x2 && point[1] > y1 && point[1] < y2);
     }
     
-    function Unit(newpos){
+    function Unit(params){
         log('unit');
-        var pos = newpos ? newpos : [100,100];
+        if (!params) {
+            params = {position:[], speed: 10, color: '#808080'};
+        }
+        var pos = params.position;
         var size = 32;
         var hsize = size / 2;
         var ctx = GameInstance.context;
@@ -165,7 +168,8 @@ $(window).load(function(){
         var inAction = false;
         var action = null;
         var actions = ['move'];
-        var speed = 10; // px per sec
+        var speed = params.speed; // px per sec
+        var color = params.color;
         
         function startMove(x,y){
             // start moving
@@ -223,11 +227,7 @@ $(window).load(function(){
         };
         
         function render(){
-            var color = "#ff0000";
-            if (selected) {
-                color = "#00ff00";
-            }
-            ctx.fillStyle = color;
+            ctx.fillStyle = selected ? "#0088ff" : color;
             ctx.fillRect(pos[0]-hsize, pos[1]-hsize, size, size);
         }
         
