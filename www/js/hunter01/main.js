@@ -111,8 +111,8 @@ $(window).load(function(){
 			$(canvas).attr({'width': width+'px', 'height': height+'px', });
 			units.push( MainUnit({position:[100, 150], speed: 70, size:32, color: 'rgb(255,0,0)',
 							  mainUnit: true}) );
-			units.push(  Unit({position:[150, 160], speed: 20, size:32, color: '#ff8800'}) );
-			units.push(  Unit({position:[200, 170], speed: 30, size:32, color: '#ff8888'}) );
+			units.push(  MovableUnit({position:[150, 160], speed: 20, size:32, color: '#ff8800'}) );
+			units.push(  MovableUnit({position:[200, 170], speed: 30, size:32, color: '#ff8888'}) );
 			units.push(  MovableUnit({position:[250, 180], speed: 50, size:32, color: '#ff0088'}) );
 			units.push(  SourceUnit({position:[350, 200], speed: 0, size:8, color: '#ff0088'}) );
 			units.push(  SceneUnit({position:[400, 200], speed: 0, size:20, color: '#000088'}) );
@@ -293,8 +293,8 @@ $(window).load(function(){
 		
 		return {
 			set position(newpos){ pos = newpos; },
-			set action(cur) {
-				action = cur;
+			set action(newAction) {
+				action = newAction;
 				inAction = true;
 			},
 			set renderer(cur){renderer = cur},
@@ -347,23 +347,23 @@ $(window).load(function(){
 				var sin = dy / distance;
 				var cos = dx / distance;
 				var distPerTime = params.speed / 1000; // px per ms
-				log({sin:sin, cos:cos})
+				//log({sin:sin, cos:cos})
 				// per ms
 				this.stepVal = {
 					x: distPerTime * cos,
 					y: distPerTime * sin,
 					d: distPerTime
 				};
-				log(this.stepVal)
+				//log(this.stepVal)
 				
 			},
 			step: function(time){
-				log('step')
+				//log('step')
 				var pos = sup.position;
 				pos[0] += this.stepVal.x * time;
 				pos[1] += this.stepVal.y * time;
 				this.remainingDist -= this.stepVal.d * time;
-				 $('div#test').html('remainingDist = ' + this.remainingDist);
+				// $('div#test').html('remainingDist = ' + this.remainingDist);
 				if (this.remainingDist <= 0) {
 					this.end();
 				}
@@ -384,13 +384,14 @@ $(window).load(function(){
 	function MainUnit(params){
 		params['mainUnit'] = true;
 		var sup = MovableUnit(params);
+		var haloRadius = params.size / 2 + 2;
 		
 		function renderMain(info){
 			//log('renderMain')
 			//log(info)
 			var actualColor = info.color; info.hovered ? info.hcolor : info.color;
 			fillPolygon(info.pos, info.size/2, 8, actualColor);
-			strokeCircle(info.pos, info.size/2+2, '#ff9000');
+			strokeCircle(info.pos, haloRadius, '#ff9000');
 		}
 		
 		sup.renderer = renderMain;
@@ -398,142 +399,14 @@ $(window).load(function(){
 		return sup;
 		
 	}
-	
-	function Unit(params){
-		log('unit');
-		if (!params) {
-			params = {position:[], speed: 10, color: '#808080', size: 32};
-		}
-		var pos = params.position;
-		var size = params.size;
-		var hsize = size / 2;
-		var ctx = GameInstance.context;
-		var selected = false;
-		var inAction = false;
-		var action = null;
-		var actions = ['move'];
-		var speed = params.speed; // px per sec
-		params.color = params.color.replace(/\s+/, '');
-		var color = params.color;
-		var hcolor = 'rgb(123,123,123)';
-		var hovered = false;
-		params['mainUnit'] = params['mainUnit'] ? params['mainUnit'] : false;
-		
-		var rgb;
-		if(/rgb\((?:\d+\,?\s*){3}\)/i.test(color)){
-			log('color tested');
-			rgb = color.match(/\((\d+),(\d+),(\d+)\)/);
-			rgb.shift();
-			log(rgb.toString());
-			$.each(rgb, function(i, val){ rgb[i] = Math.round(val + 50); rgb[i] = rgb[i] > 255 ? 255 : rgb[i]; });
-		} else if (/#[0-9a-f]{6}/.test(color)) {
-			rgb = color.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/);
-			rgb.shift();
-			log(rgb.toString());
-			$.each(rgb, function(i, val){
-				rgb[i] = Math.round(parseInt('0x' + val) + 50);
-				rgb[i] = rgb[i] > 255 ? 255 : rgb[i];
-			});
-		} else {
-			rgb = [125,125,225];
-		}
-		hcolor = 'rgb(' + rgb[0] + ','+ rgb[1] + ','+ rgb[2] + ')';
-		log(color + '; h =  ' + hcolor);
-		
-				var move = {
-			startTime:0,
-			startPoint:pos,
-			endPoint: pos,
-			stepVal:{x:0,y:0, d:0},
-			remainingDist:0,
-			
-			start: function(point){
-				var x = point[0];
-				var y = point[1];
-				this.endPoint = [x,y];
-				var dx = x - pos[0];
-				var dy = y -  pos[1];
-				var posDiff = [dx, dy];
-				var distance = Math.sqrt(dx*dx + dy*dy);
-				this.remainingDist = distance;
-				var sin = dy / distance;
-				var cos = dx / distance;
-				var distPerTime = speed / 1000; // px per ms
-				log({sin:sin, cos:cos})
-				// per ms
-				this.stepVal = {
-					x: distPerTime * cos,
-					y: distPerTime * sin,
-					d: distPerTime
-				};
-				log(this.stepVal)
-				
-			},
-			step: function(time){
-				log('step')
-				pos[0] += this.stepVal.x * time;
-				pos[1] += this.stepVal.y * time;
-				this.remainingDist -= this.stepVal.d * time;
-				// $('div#test').html('remainingDist = ' + this.remainingDist);
-				if (this.remainingDist <= 0) {
-					this.end();
-				}
-			},
-			end: function(){
-				inAction = false;
-			} 
-		};
-		
-		// RENDER
-		function render(){
-			var actualColor = hovered ? hcolor : color;
-			//actualColor = selected ? "#0088ff" : actualColor;
-			ctx.fillStyle = actualColor;
-			if(params.mainUnit) {
-				fillPolygon(pos, size/2, 8, actualColor);
-				ctx.strokeStyle = '#ff9000';
-				ctx.beginPath();
-				ctx.arc(pos[0], pos[1], hsize+2, 0, 2 * Math.PI, false);
-				ctx.stroke();
-			} else {
-				ctx.fillRect(pos[0]-hsize, pos[1]-hsize, size, size);
-				if (selected) {
-					strokeRect(pos[0]-hsize-2, pos[1]-hsize-2, size+4, size+4, '#ee8800');
-				}
-			}
-		}
-		
-		
-		return {
-			set position(newpos){ pos = newpos; },
-			get position(){ return pos; },
-			get size(){return size; },
-			get inAction(){ return inAction; },
-			get mainUnit(){ return params.mainUnit; },
-			
-			render: function(){ render(); },
-			select: function(){ selected = true; },
-			unselect: function(){ selected = false; },
-			mHover: function(){ hovered = true; },
-			mOut: function(){ hovered = false; },
-			moveTo: function(point){
-				log('moveTo')
-				action = move;
-				inAction = true;
-				action.start(point);
-			},
-			actionStep: function(timeDiff){
-				action.step(timeDiff);
-			}
-		};
-	}
+
 	
 	function SourceUnit(params){
 		
 		var ctx = GameInstance.context;
 		var hovered = false;
 		
-		var sup = Unit(params);
+		var sup = SceneUnit(params);
 		
 		sup.render = function(){
 			ctx.fillStyle = hovered ? '#44ff44' : '#88ff88';
@@ -541,7 +414,7 @@ $(window).load(function(){
 		};
 		sup.select = function(){};
 		sup.unselect = function(){};
-		sup.moveTo = function(){};
+		//sup.moveTo = function(){};
 		sup.mHover = function(){ hovered = true; };
 		sup.mOut = function(){ hovered = false; };
 		
